@@ -2,7 +2,8 @@
 
 namespace App\Common\Services;
 
-use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 abstract class Service
 {
@@ -15,21 +16,20 @@ abstract class Service
     public function validate(
         array $inputs,
         array $rules,
-        array $messages = [],
-        array $customAttributes = []
+        array $messages = []
     ) {
-        return $this->getValidationFactory()
-            ->make(
-                $inputs,
-                $rules,
-                $messages,
-                $customAttributes
-            )
-            ->validate();
-    }
+        $validator = Validator::make($inputs, $rules, $messages);
 
-    protected function getValidationFactory()
-    {
-        return app(Factory::class);
+        if ($validator->fails()) {
+            $errorMessage = '';
+
+            foreach ($validator->errors()->toArray() as $key => $errors) {
+                foreach ($errors as $error) {
+                    $errorMessage  .= PHP_EOL . $error;
+                }
+            }
+
+            throw ValidationException::withMessages(['message' => $errorMessage]);
+        }
     }
 }

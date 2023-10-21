@@ -10,15 +10,19 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        return app(RegisterService::class)
+        $response = app(RegisterService::class)
             ->setPayload($request)
             ->exec();
+
+        return ok(['data' => $response]);
     }
 
     public function login(Request $request)
     {
-        return app(LoginService::class)
+        $response = app(LoginService::class)
             ->setPayload($request)
             ->exec();
+
+        return ok(['data' => $response]);
     }
 }

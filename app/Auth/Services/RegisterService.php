@@ -7,7 +7,6 @@ use App\Repositories\UserRepository;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterService extends Service
@@ -30,15 +29,7 @@ class RegisterService extends Service
 
     private function validateRule()
     {
-        $messages = [
-            'email.required' => 'We need to know your email address!',
-            'email.max' => 'Your email address is too long!',
-            'name.required' => 'We need to know your name!',
-            'password.required' => 'We need to know your password!',
-            'required' => 'The :attribute field is required.',
-        ];
-
-        $validator = Validator::make(
+        $this->validate(
             $this->payload->all(),
             [
                 'name' => 'required|string|max:255',
@@ -48,20 +39,13 @@ class RegisterService extends Service
                     Password::min(8)->numbers()->uncompromised()
                 ]
             ],
-            $messages
+            [
+                'email.required' => 'We need to know your email address!',
+                'name.required' => 'We need to know your name!',
+                'name.max' => 'Your name is too long!',
+                'password.required' => 'We need to know your password!'
+            ]
         );
-
-        if ($validator->fails()) {
-            $errorMessage = '';
-
-            foreach ($validator->errors()->toArray() as $key => $errors) {
-                foreach ($errors as $error) {
-                    $errorMessage  .= PHP_EOL . $error;
-                }
-            }
-
-            throw new Exception($errorMessage);
-        }
     }
 
     public function exec()
