@@ -4,6 +4,7 @@ namespace App\Auth\Services;
 
 use App\Repositories\UserRepository;
 use App\Common\Services\Service;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -86,6 +87,7 @@ class LoginService extends Service
 
         $token = $user->createToken('Personal Access Token')->plainTextToken;
         Auth::login($user);
+        $this->userRepository->update($user->id, ['recently_login' => Carbon::now()]);
 
         return [
             'user' => $user,
